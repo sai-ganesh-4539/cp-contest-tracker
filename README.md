@@ -65,11 +65,15 @@ cp-contest-tracker/
 └── README.md
 ```
 
+## Live Demo
+
+🔗 [https://cp-contest-tracker-510u.onrender.com/docs](https://cp-contest-tracker-510u.onrender.com/docs)
+
 ## Roadmap
 
 - [x] Phase 1 — Project scaffold
-- [ ] Phase 2 — JWT auth
-- [ ] Phase 3 — Contest ingestion + scheduler
-- [ ] Phase 4 — Bookmarks
-- [ ] Phase 5 — Redis caching + rate limiting
-- [ ] Phase 6 — GCP deployment
+- [x] Phase 2 — JWT auth
+- [x] Phase 3 — Contest ingestion + scheduler
+- [x] Phase 4 — Bookmarks
+- [x] Phase 5 — Redis caching + rate limiting
+- [x] Phase 6 — Deployment (Render)
