@@ -3,8 +3,12 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app import models, schemas
 from app.auth import get_current_user
+from app.redis_client import redis_client
 
 router = APIRouter(tags=["bookmarks"])
+
+RATE_LIMIT = 10
+RATE_LIMIT_WINDOW = 3600  # 1 hour
 
 @router.post("/contests/{contest_id}/bookmark", status_code=201)
 def bookmark_contest(
@@ -12,6 +16,15 @@ def bookmark_contest(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
 ):
+    rate_key = f"user:{current_user.id}:bookmarks"
+    current_count = redis_client.get(rate_key)
+
+    if current_count and int(current_count) >= RATE_LIMIT:
+        raise HTTPException(
+            status_code=429,
+            detail="Rate limit exceeded: max 10 bookmarks per hour"
+        )
+
     contest = db.query(models.Contest).filter(models.Contest.id == contest_id).first()
     if not contest:
         raise HTTPException(status_code=404, detail="Contest not found")
@@ -26,6 +39,12 @@ def bookmark_contest(
     bookmark = models.Bookmark(user_id=current_user.id, contest_id=contest_id)
     db.add(bookmark)
     db.commit()
+
+    pipe = redis_client.pipeline()
+    pipe.incr(rate_key)
+    pipe.expire(rate_key, RATE_LIMIT_WINDOW)
+    pipe.execute()
+
     return {"detail": "Bookmarked"}
 
 
