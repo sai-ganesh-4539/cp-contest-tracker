@@ -96,3 +96,20 @@ def fetch_all_contests(db: Session):
     fetch_codeforces(db)
     fetch_clist(db)
     print("[fetcher] Done.")
+
+def cleanup_past_contests(db: Session):
+    """Delete contests that have already ended (start_time + duration < now)."""
+    from datetime import timedelta
+    now = datetime.utcnow()
+    contests = db.query(models.Contest).all()
+    deleted = 0
+    for c in contests:
+        if not c.duration_minutes:
+            continue
+        end_time = c.start_time + timedelta(minutes=c.duration_minutes)
+        if end_time < now:
+            db.delete(c)
+            deleted += 1
+    if deleted:
+        db.commit()
+        print(f"[fetcher] Cleaned up {deleted} past contests")
