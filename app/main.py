@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from app.database import engine, Base
 from app.routers import auth, contests, bookmarks
@@ -12,9 +13,22 @@ app = FastAPI(
     version="0.1.0",
 )
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",       # Next.js dev server
+        "http://127.0.0.1:3000",       # Next.js dev (alt)
+        "http://localhost:5173",       # Vite dev server (in case)
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(auth.router)
 app.include_router(contests.router)
 app.include_router(bookmarks.router)
+
 
 @app.on_event("startup")
 def startup():
