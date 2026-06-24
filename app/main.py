@@ -39,5 +39,5 @@ def root():
     return RedirectResponse(url="/docs")
 
 @app.get("/health", tags=["health"])
-def health():
-    return {"status": "ok"}
+async def health_head():
+    return JSONResponse(content={"status": "ok"})
