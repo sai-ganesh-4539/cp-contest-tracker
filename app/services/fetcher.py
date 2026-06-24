@@ -101,15 +101,26 @@ def cleanup_past_contests(db: Session):
     """Delete contests that have already ended (start_time + duration < now)."""
     from datetime import timedelta
     now = datetime.utcnow()
-    contests = db.query(models.Contest).all()
-    deleted = 0
-    for c in contests:
-        if not c.duration_minutes:
-            continue
-        end_time = c.start_time + timedelta(minutes=c.duration_minutes)
-        if end_time < now:
-            db.delete(c)
-            deleted += 1
-    if deleted:
-        db.commit()
-        print(f"[fetcher] Cleaned up {deleted} past contests")
+    try:
+        contests = db.query(models.Contest).all()
+        deleted = 0
+        for c in contests:
+            if not c.duration_minutes:
+                continue
+            end_time = c.start_time + timedelta(minutes=c.duration_minutes)
+            if end_time < now:
+                # Delete bookmarks referencing this contest first (avoid FK violation)
+                try:
+                    db.query(models.Bookmark).filter(
+                        models.Bookmark.contest_id == c.id
+                    ).delete(synchronize_session=False)
+                except Exception as bm_err:
+                    print(f"[fetcher] Could not clean bookmarks for {c.id}: {bm_err}")
+                db.delete(c)
+                deleted += 1
+        if deleted:
+            db.commit()
+            print(f"[fetcher] Cleaned up {deleted} past contests")
+    except Exception as e:
+        db.rollback()
+        print(f"[fetcher] Cleanup failed (non-fatal): {e}")
