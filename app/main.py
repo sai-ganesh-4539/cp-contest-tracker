@@ -19,8 +19,9 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:5173",
-        "https://cp-contest-tracker-web.vercel.app",   # ← add this line
+        "https://cp-contest-tracker-web.vercel.app",  # production
     ],
+    allow_origin_regex=r"^https://cp-contest-tracker-web(-[\w-]+)?-learner12313s-projects\.vercel\.app$",  # previews
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
