@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, UniqueConstraint
+# app/models.py
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, UniqueConstraint, Boolean
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -42,6 +43,7 @@ class Bookmark(Base):
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
     contest_id = Column(UUID(as_uuid=True), ForeignKey("contests.id"), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+    notified = Column(Boolean, default=False, nullable=False, server_default="false")  # NEW
 
     __table_args__ = (
         UniqueConstraint("user_id", "contest_id", name="uq_user_contest"),

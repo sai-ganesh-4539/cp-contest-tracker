@@ -1,16 +1,21 @@
+# app/main.py
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from app.database import engine, Base
 from app.routers import auth, contests, bookmarks
 from app.scheduler import start_scheduler
+from app.migrate_notified import run as run_migrations
 
+# Create tables (idempotent — won't add columns to existing tables)
 Base.metadata.create_all(bind=engine)
+# Run column migration (idempotent — skips if already done)
+run_migrations()
 
 app = FastAPI(
     title="CP Contest Tracker",
     description="Aggregate competitive programming contests across platforms.",
-    version="0.1.0",
+    version="0.2.0",
 )
 
 app.add_middleware(
@@ -19,9 +24,9 @@ app.add_middleware(
         "http://localhost:3000",
         "http://127.0.0.1:3000",
         "http://localhost:5173",
-        "https://cp-contest-tracker-web.vercel.app",  # production
+        "https://cp-contest-tracker-web.vercel.app",
     ],
-    allow_origin_regex=r"^https://cp-contest-tracker-web(-[\w-]+)?-learner12313s-projects\.vercel\.app$",  # previews
+    allow_origin_regex=r"^https://cp-contest-tracker-web(-[\w-]+)?-learner12313s-projects\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
