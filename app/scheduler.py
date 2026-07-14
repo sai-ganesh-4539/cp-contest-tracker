@@ -10,8 +10,8 @@ from datetime import datetime, timedelta
 scheduler = BackgroundScheduler()
 
 # Window: send reminder if contest starts in this range (50 to 70 minutes from now)
-REMINDER_WINDOW_MIN_LOW = 50
-REMINDER_WINDOW_MIN_HIGH = 70
+REMINDER_WINDOW_MIN_LOW = 0
+REMINDER_WINDOW_MIN_HIGH = 720
 
 
 def start_scheduler():
