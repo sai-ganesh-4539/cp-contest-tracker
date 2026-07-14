@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from app.database import engine, Base
-from app.routers import auth, contests, bookmarks, test_email   # <-- add test_email
+from app.routers import auth, contests, bookmarks
 from app.scheduler import start_scheduler
 from app.migrate_notified import run as run_migrations
 
@@ -33,7 +33,6 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(contests.router)
 app.include_router(bookmarks.router)
-app.include_router(test_email.router)   # <-- add this
 
 @app.on_event("startup")
 def startup():
